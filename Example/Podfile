@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'RxCocoaExt_Example' do
+  pod 'RxCocoaExt', :path => '../'
+
+  target 'RxCocoaExt_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
