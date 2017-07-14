@@ -9,29 +9,28 @@
 import RxSwift
 import RxCocoa
 
-extension UIControl {
-    public static func isFirstResponderProperty<T, ControlType: UIControl>(_ control: ControlType, getter:  @escaping (ControlType) -> T, setter: @escaping (ControlType, T) -> ()) -> ControlProperty<T> {
-        let values: Observable<T> = Observable.deferred { [weak control] in
-            guard let existingSelf = control else {
-                return Observable.empty()
-            }
-            
-            return (existingSelf as UIControl).rx.controlEvent([.editingDidBegin, .editingDidEnd, .editingDidEndOnExit])
-                .flatMap { _ in
-                    return control.map { Observable.just(getter($0)) } ?? Observable.empty()
-                }
-                .startWith(getter(existingSelf))
-        }
-        return ControlProperty(values: values, valueSink: UIBindingObserver(UIElement: control) { control, value in
-            setter(control, value)
-        })
-    }
-}
-
 extension Reactive where Base: UIControl {
     
     public var isFirstResponder: ControlProperty<Bool> {
-        return UIControl.isFirstResponderProperty(
+        
+        func property<T, ControlType: UIControl>(_ control: ControlType, getter:  @escaping (ControlType) -> T, setter: @escaping (ControlType, T) -> ()) -> ControlProperty<T> {
+            let values: Observable<T> = Observable.deferred { [weak control] in
+                guard let existingSelf = control else {
+                    return Observable.empty()
+                }
+                
+                return (existingSelf as UIControl).rx.controlEvent([.editingDidBegin, .editingDidEnd, .editingDidEndOnExit])
+                    .flatMap { _ in
+                        return control.map { Observable.just(getter($0)) } ?? Observable.empty()
+                    }
+                    .startWith(getter(existingSelf))
+            }
+            return ControlProperty(values: values, valueSink: UIBindingObserver(UIElement: control) { control, value in
+                setter(control, value)
+            })
+        }
+        
+        return property(
             self.base,
             getter: { control in
                 control.isFirstResponder
