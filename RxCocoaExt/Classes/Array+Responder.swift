@@ -38,7 +38,6 @@ extension Array where Element: UIControl {
     
     public func nextResponder(enabling: Bool = false) -> (index: Int, control: UIControl)? {
         guard let responder = firstResponder(), responder.index + 1 < count else { return nil }
-        
         for nextIndex in (responder.index + 1)..<count {
             guard nextIndex < count else { break }
             if !enabling && !self[nextIndex].isEnabled { continue }
@@ -49,32 +48,14 @@ extension Array where Element: UIControl {
     
     @discardableResult
     public func moveToPreviousResponder(disabling: Bool = false, enabling: Bool = false) -> Int? {
-        guard let responder = firstResponder(), responder.index > 0 else { return nil }
-        
-        for previousIndex in (0..<(responder.index - 1)).reversed() {
-            guard previousIndex >= 0 else { break }
-            if set(leaving: responder.control, arriving: self[previousIndex], disabling: disabling, enabling: enabling) {
-                return previousIndex
-            } else {
-                continue
-            }
-        }
-        return nil
+        guard let responder = firstResponder(), let previousResponder = previousResponder(enabling: enabling) else { return nil }
+        return set(leaving: responder.control, arriving: previousResponder.control, disabling: disabling, enabling: enabling) ? previousResponder.index : nil
     }
     
     @discardableResult
     public func moveToNextResponder(disabling: Bool = false, enabling: Bool = false) -> Int? {
-        guard let responder = firstResponder(), responder.index + 1 < count else { return nil }
-        
-        for nextIndex in (responder.index + 1)..<count {
-            guard nextIndex < count else { break }
-            if set(leaving: responder.control, arriving: self[nextIndex], disabling: disabling, enabling: enabling) {
-                return nextIndex
-            } else {
-                continue
-            }
-        }
-        return nil
+        guard let responder = firstResponder(), let nextResponder = nextResponder(enabling: enabling) else { return nil }
+        return set(leaving: responder.control, arriving: nextResponder.control, disabling: disabling, enabling: enabling) ? nextResponder.index : nil
     }
     
     @discardableResult
@@ -82,16 +63,13 @@ extension Array where Element: UIControl {
         if disabling {
             leaving.isEnabled = false
         }
-        var isArrived = false
+        var isArrived = true
         if enabling {
             if !arriving.isEnabled {
                 arriving.isEnabled = true
-                isArrived = true
             }
         } else {
-            if !arriving.isEnabled {
-                return false
-            }
+            isArrived = arriving.isEnabled
         }
         return isArrived && arriving.becomeFirstResponder()
     }
