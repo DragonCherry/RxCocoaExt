@@ -38,6 +38,9 @@ extension Reactive where Base: UIControl {
             },
             setter: { control, value in
                 if control.isFirstResponder != value {
+                    if control.isEnabled == false {
+                        control.isEnabled = true
+                    }
                     _ = value ? control.becomeFirstResponder() : control.resignFirstResponder()
                 }
             })
