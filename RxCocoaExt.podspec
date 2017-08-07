@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'RxCocoaExt'
-  s.version          = '0.5.1'
+  s.version          = '0.5.2'
   s.summary          = 'Convenience observables for programming RxSwift & RxCocoa application.'
 
 # This description is used to generate tags and improve search results.

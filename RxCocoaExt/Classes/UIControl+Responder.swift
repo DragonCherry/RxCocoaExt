@@ -1,5 +1,5 @@
 //
-//  UIControl+Rx.swift
+//  UIControl+Ext.swift
 //  Pods
 //
 //  Created by DragonCherry on 7/13/17.
@@ -9,6 +9,7 @@
 import RxSwift
 import RxCocoa
 
+// MARK: - UIBindingObserver for UIControl.isFirstResponder
 extension Reactive where Base: UIControl {
     
     public var isFirstResponder: ControlProperty<Bool> {
@@ -19,7 +20,7 @@ extension Reactive where Base: UIControl {
                     return Observable.empty()
                 }
                 
-                return (existingSelf as UIControl).rx.controlEvent([.editingDidBegin, .editingDidEnd, .editingDidEndOnExit])
+                return existingSelf.rx.controlEvent([.editingDidBegin, .editingDidEnd, .editingDidEndOnExit])
                     .flatMap { _ in
                         return control.map { Observable.just(getter($0)) } ?? Observable.empty()
                     }
@@ -37,6 +38,9 @@ extension Reactive where Base: UIControl {
             },
             setter: { control, value in
                 if control.isFirstResponder != value {
+                    if control.isEnabled == false {
+                        control.isEnabled = true
+                    }
                     _ = value ? control.becomeFirstResponder() : control.resignFirstResponder()
                 }
             })
