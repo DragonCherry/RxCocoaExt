@@ -46,11 +46,3 @@ extension Reactive where Base: UIControl {
             })
     }
 }
-
-extension Reactive where Base: UIButton {
-    public var title: UIBindingObserver<Base, String> {
-        return UIBindingObserver(UIElement: base) { view, text in
-            view.setTitle(text, for: .normal)
-        }
-    }
-}

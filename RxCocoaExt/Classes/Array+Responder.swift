@@ -11,21 +11,6 @@ import RxCocoa
 
 extension Array where Element: UIControl {
     
-//    private struct AssociationKey {
-//        var associatedKey: String = "kUIControlArrayCurrentResponder"
-//    }
-//    
-//    public var currentResponder: (Int, UIControl)? {
-//        get {
-//            var key = AssociationKey()
-//            return objc_getAssociatedObject(self, &key.associatedKey) as? (Int, UIControl)
-//        }
-//        set {
-//            var key = AssociationKey()
-//            objc_setAssociatedObject(self, &key.associatedKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-//        }
-//    }
-    
     public var responder: Driver<(index: Int, control: UIControl)?> {
         let drivers = flatMap { $0.rx.isFirstResponder.asDriver() }
         return Driver.combineLatest(drivers) { $0.index(of: true) }
